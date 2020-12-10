@@ -1,0 +1,166 @@
+{
+  "Uuid": "b84e6d2a-7aca-472b-a374-1c97d2be06e3",
+  "IsCustomNode": false,
+  "Description": null,
+  "Name": "ImportFamily",
+  "ElementResolver": {
+    "ResolutionMap": {}
+  },
+  "Inputs": [],
+  "Outputs": [],
+  "Nodes": [
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CodeBlockNodeModel, DynamoCore",
+      "NodeType": "CodeBlockNode",
+      "Code": "\"C:\\\\ProgramData\\\\Autodesk\\\\RVT 2020\\\\Libraries\\\\Korea\\\\구조 기둥\\\\콘크리트\\\\콘크리트-직사각형-기둥.rfa\";",
+      "Id": "14b4779ae86449d7bb0deb4c4b735012",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "e8a99cadaaaa43859b31a1554c73d633",
+          "Name": "",
+          "Description": "Value of expression at line 1",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Allows for DesignScript code to be authored directly"
+    },
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "import clr\r\nimport System.IO\r\n\r\n# Import DesignScript Grometry Library\r\nclr.AddReference('ProtoGeometry')\r\nfrom Autodesk.DesignScript.Geometry import *\r\n\r\n# Import ToDSType(bool) extension method\r\nclr.AddReference(\"RevitNodes\")\r\nimport Revit\r\nclr.ImportExtensions(Revit.Elements)\r\nclr.ImportExtensions(Revit.GeometryConversion)\r\n\r\n# Import DocumentManager and TransactionManager\r\nclr.AddReference(\"RevitServices\")\r\nimport RevitServices\r\nfrom RevitServices.Persistence import DocumentManager\r\nfrom RevitServices.Transactions import TransactionManager\r\n\r\ndoc = DocumentManager.Instance.CurrentDBDocument\r\nuiapp = DocumentManager.Instance.CurrentUIApplication\r\napp = uiapp.Application\r\n\r\nfrom System.Collections.Generic import *\r\n\r\n# Import RevitAPI\r\nclr.AddReference(\"RevitAPI\")\r\nimport Autodesk\r\nfrom Autodesk.Revit.DB import *\r\n\r\n# 이 노드에 대한 입력값은 IN 변수에 리스트로 저장됩니다.\r\ndataEnteringNode = IN\r\n\r\n# 코드를 이 선 아래에 배치\r\ndef GetFamily(Rfa_FileFullPath):\r\n\r\n    family = None\r\n    \r\n    familyname = System.IO.Path.GetFileNameWithoutExtension(Rfa_FileFullPath)\r\n    collector = FilteredElementCollector(doc).OfClass(Family).ToElements()\r\n    for f in collector:\r\n        if f.Name == familyname:\r\n            family = f\r\n            break\r\n            \r\n    if family != None:\r\n        return family\r\n\r\n    else:\r\n    \r\n        TransactionManager.Instance.EnsureInTransaction(doc)\r\n        \r\n        success, f = doc.LoadFamily.Overloads.Functions[0](Rfa_FileFullPath)\r\n        \r\n        TransactionManager.Instance.TransactionTaskDone()\r\n\r\n        return f\r\n\r\ndef GetDefaultFamilySymbol(family):\r\n    if family == None:\r\n        return None\r\n    else:\r\n    \t\r\n        symbols_id = family.GetFamilySymbolIds().GetEnumerator()\r\n        symbols_id.MoveNext()\r\n        symbol = doc.GetElement(symbols_id.Current)\r\n        return symbol\r\n        \r\n\r\nrfafile = IN[0]\r\n\r\nfamily = GetFamily(rfafile)\r\n\r\nOUT = GetDefaultFamilySymbol(family).ToDSType(True)",
+      "VariableInputPorts": true,
+      "Id": "1633b11830dc41eaa8c699e9b7e0c448",
+      "Inputs": [
+        {
+          "Id": "d11f3d09e8af402fa150bf62fb095092",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "45951f430f3142969a968949d1c4f7c7",
+          "Name": "OUT",
+          "Description": "Result of the python script",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Runs an embedded IronPython script."
+    },
+    {
+      "ConcreteType": "CoreNodeModels.Watch, CoreNodeModels",
+      "NodeType": "ExtensionNode",
+      "Id": "8676544c2fe246fcb44aed7859f046f6",
+      "Inputs": [
+        {
+          "Id": "b83e02cfaffb43fa93e17a892b6578b1",
+          "Name": "",
+          "Description": "Node to evaluate.",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "b4aabe6eeeb7474ab35f986c5bd55a14",
+          "Name": "",
+          "Description": "Watch contents.",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Visualize the output of node."
+    }
+  ],
+  "Connectors": [
+    {
+      "Start": "e8a99cadaaaa43859b31a1554c73d633",
+      "End": "d11f3d09e8af402fa150bf62fb095092",
+      "Id": "ee0e4b7c79554c1cb6f71debc5dc1465"
+    },
+    {
+      "Start": "45951f430f3142969a968949d1c4f7c7",
+      "End": "b83e02cfaffb43fa93e17a892b6578b1",
+      "Id": "3e1a7eeceb024c96a9e88198eb5eb967"
+    }
+  ],
+  "Dependencies": [],
+  "NodeLibraryDependencies": [],
+  "Bindings": [],
+  "View": {
+    "Dynamo": {
+      "ScaleFactor": 1.0,
+      "HasRunWithoutCrash": true,
+      "IsVisibleInDynamoLibrary": true,
+      "Version": "2.3.0.5885",
+      "RunType": "Manual",
+      "RunPeriod": "1000"
+    },
+    "Camera": {
+      "Name": "Background Preview",
+      "EyeX": -17.0,
+      "EyeY": 24.0,
+      "EyeZ": 50.0,
+      "LookX": 12.0,
+      "LookY": -13.0,
+      "LookZ": -58.0,
+      "UpX": 0.0,
+      "UpY": 1.0,
+      "UpZ": 0.0
+    },
+    "NodeViews": [
+      {
+        "ShowGeometry": true,
+        "Name": "Code Block",
+        "Id": "14b4779ae86449d7bb0deb4c4b735012",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": -141.80118694362017,
+        "Y": 277.22551928783389
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Python Script",
+        "Id": "1633b11830dc41eaa8c699e9b7e0c448",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 649.1873514248507,
+        "Y": 278.612540618365
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Watch",
+        "Id": "8676544c2fe246fcb44aed7859f046f6",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 867.25329589737817,
+        "Y": 278.612540618365
+      }
+    ],
+    "Annotations": [],
+    "X": 9.8940822329377625,
+    "Y": -4.1400230341246242,
+    "Zoom": 0.97676875
+  }
+}

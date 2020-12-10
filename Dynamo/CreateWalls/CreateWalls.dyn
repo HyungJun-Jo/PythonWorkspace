@@ -1,0 +1,279 @@
+{
+  "Uuid": "b84e6d2a-7aca-472b-a374-1c97d2be06e3",
+  "IsCustomNode": false,
+  "Description": null,
+  "Name": "CreateWalls",
+  "ElementResolver": {
+    "ResolutionMap": {}
+  },
+  "Inputs": [],
+  "Outputs": [],
+  "Nodes": [
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "# Load the Python Standard and DesignScript Libraries\r\nimport sys\r\nimport clr\r\n\r\nclr.AddReference('RevitNodes')\r\nfrom Revit.Elements import *\r\n\r\nimport Revit\r\nclr.ImportExtensions(Revit.Elements)\r\n\r\nclr.AddReference(\"RevitServices\")\r\nimport RevitServices\r\nfrom RevitServices.Persistence import DocumentManager\r\nfrom RevitServices.Transactions import TransactionManager\r\ndoc = DocumentManager.Instance.CurrentDBDocument\r\n\r\nclr.AddReference('RevitAPI')\r\nfrom Autodesk.Revit.DB import XYZ, Line, Wall\r\n\r\nwidth = IN[0]\r\nheight = IN[1]\r\nlevel = UnwrapElement(IN[2])\r\n\r\npt1 = XYZ(0, 0, 0)\r\npt2 = XYZ(width, 0, 0)\r\npt3 = XYZ(width, height, 0)\r\npt4 = XYZ(0, height, 0)\r\n\r\npts = [pt1, pt2, pt3, pt4]\r\nwalls = []\r\n\r\n# Transaction 시작\r\nTransactionManager.Instance.EnsureInTransaction(doc)\r\n\r\nfor n, pt in enumerate(pts):\r\n\ttry:\r\n\t\twall_line = Line.CreateBound(pt, pts[n+1])\r\n\texcept IndexError:\r\n\t\twall_line = Line.CreateBound(pt, pts[0])\r\n\twall = Wall.Create(doc, wall_line, level.Id, False)\r\n\twalls.append(wall.ToDSType(False))\r\n\r\n# Transaction 종료\r\nTransactionManager.Instance.TransactionTaskDone()\r\n\r\nOUT = walls\r\n\r\n\t",
+      "VariableInputPorts": true,
+      "Id": "9e4895885570414382f4edf985b3a2d2",
+      "Inputs": [
+        {
+          "Id": "ab78bda198c64054bdf31f530bd31966",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "78428648eb5d46bea2c9a06e30bc5150",
+          "Name": "IN[1]",
+          "Description": "Input #1",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "34465e0906e548868fbe2bbf2bc0bd32",
+          "Name": "IN[2]",
+          "Description": "Input #2",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "1815bbfe2544458fa5d073fa846cfd52",
+          "Name": "OUT",
+          "Description": "Result of the python script",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Runs an embedded IronPython script."
+    },
+    {
+      "ConcreteType": "CoreNodeModels.Watch, CoreNodeModels",
+      "NodeType": "ExtensionNode",
+      "Id": "cbc7e67e2b8e4f9ca0012ac5ad30161d",
+      "Inputs": [
+        {
+          "Id": "1cd3f1806a464c3ca45f39835731aea0",
+          "Name": "",
+          "Description": "Node to evaluate.",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "c13b85dc3d7f4d0da31d0006221ccd14",
+          "Name": "",
+          "Description": "Watch contents.",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Visualize the output of node."
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.ZeroTouch.DSFunction, DynamoCore",
+      "NodeType": "FunctionNode",
+      "FunctionSignature": "Revit.Elements.Element.Geometry",
+      "Id": "eb8c55cdab674d3c8aa239692ee7396a",
+      "Inputs": [
+        {
+          "Id": "a172a89c92514e54ac38e841975ced4a",
+          "Name": "element",
+          "Description": "Revit.Elements.Element",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "6115b3618179495782f9f710ba07aa78",
+          "Name": "var[]",
+          "Description": "var[]",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Auto",
+      "Description": "Get all of the Geometry associated with this object\n\nElement.Geometry ( ): var[]"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CodeBlockNodeModel, DynamoCore",
+      "NodeType": "CodeBlockNode",
+      "Code": "25;\n25;",
+      "Id": "9cec31c580834a18b9880de284519613",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "9f3995a1afe3420a8eca9e746d1e3f48",
+          "Name": "",
+          "Description": "Value of expression at line 1",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "0a000f48d7c04ac9a8d82028d721fad3",
+          "Name": "",
+          "Description": "Value of expression at line 2",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Allows for DesignScript code to be authored directly"
+    },
+    {
+      "ConcreteType": "DSRevitNodesUI.Levels, DSRevitNodesUI",
+      "SelectedIndex": 0,
+      "SelectedString": "1ST FFL",
+      "NodeType": "ExtensionNode",
+      "Id": "7c447d9117b4490fbc71820ce7a3e1bf",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "311d791bfe75487fa0565d5add725cc2",
+          "Name": "Levels",
+          "Description": "The selected Levels",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Select a level in the active document"
+    }
+  ],
+  "Connectors": [
+    {
+      "Start": "1815bbfe2544458fa5d073fa846cfd52",
+      "End": "1cd3f1806a464c3ca45f39835731aea0",
+      "Id": "d12cac6896df41e398ff8344fb041b44"
+    },
+    {
+      "Start": "c13b85dc3d7f4d0da31d0006221ccd14",
+      "End": "a172a89c92514e54ac38e841975ced4a",
+      "Id": "960d5ba6bb5145afb1b6b6811b7879cf"
+    },
+    {
+      "Start": "9f3995a1afe3420a8eca9e746d1e3f48",
+      "End": "ab78bda198c64054bdf31f530bd31966",
+      "Id": "1b63421a165a4b2ab7d6ee92e6c07720"
+    },
+    {
+      "Start": "0a000f48d7c04ac9a8d82028d721fad3",
+      "End": "78428648eb5d46bea2c9a06e30bc5150",
+      "Id": "5a41102789004f27ba753ceff02d7cd6"
+    },
+    {
+      "Start": "311d791bfe75487fa0565d5add725cc2",
+      "End": "34465e0906e548868fbe2bbf2bc0bd32",
+      "Id": "1916c3cc288d4f27a3e17087e5a63267"
+    }
+  ],
+  "Dependencies": [],
+  "NodeLibraryDependencies": [],
+  "Bindings": [],
+  "View": {
+    "Dynamo": {
+      "ScaleFactor": 1.0,
+      "HasRunWithoutCrash": true,
+      "IsVisibleInDynamoLibrary": true,
+      "Version": "2.3.0.5885",
+      "RunType": "Manual",
+      "RunPeriod": "1000"
+    },
+    "Camera": {
+      "Name": "Background Preview",
+      "EyeX": -11792.017180735198,
+      "EyeY": 16264.55420636358,
+      "EyeZ": 26351.633306142441,
+      "LookX": 11837.017180735198,
+      "LookY": -14014.55420636358,
+      "LookZ": -26351.633306142441,
+      "UpX": 0.0956551224539448,
+      "UpY": 0.97236992039767722,
+      "UpZ": -0.21294796419345449
+    },
+    "NodeViews": [
+      {
+        "ShowGeometry": true,
+        "Name": "Create Walls (Python)",
+        "Id": "9e4895885570414382f4edf985b3a2d2",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 274.11312143399977,
+        "Y": 127.28199172342978
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Watch",
+        "Id": "cbc7e67e2b8e4f9ca0012ac5ad30161d",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 490.00942856850872,
+        "Y": 139.74635491444855
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Element.Geometry",
+        "Id": "eb8c55cdab674d3c8aa239692ee7396a",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 781.843678517785,
+        "Y": 132.19070081683421
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Code Block",
+        "Id": "9cec31c580834a18b9880de284519613",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 47.440918985478788,
+        "Y": 111.84942563407571
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Levels",
+        "Id": "7c447d9117b4490fbc71820ce7a3e1bf",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 15.646147089297074,
+        "Y": 223.32290972572935
+      }
+    ],
+    "Annotations": [],
+    "X": -17.350301397500516,
+    "Y": 237.69882953562242,
+    "Zoom": 1.0134440767424446
+  }
+}
